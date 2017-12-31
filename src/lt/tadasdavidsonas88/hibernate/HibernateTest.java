@@ -10,32 +10,31 @@ public class HibernateTest {
 
 	public static void main(String[] args) {
 		
+		// Transient object - laikinas
+		UserDetails user = new UserDetails();
+		user.setUserName("Test User");
 		
 		SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
 		Session session = sessionFactory.openSession();
 		session.beginTransaction();
 
-		for(int i = 0; i < 10; i++) {
-			UserDetails user = new UserDetails();
-			user.setUserName("User " + i);
-			// create
-			session.save(user);
-		}
-		// read
-		UserDetails user = (UserDetails) session.get(UserDetails.class, 6);
-		System.out.println("User name pulled up is: " + user.getUserName());
-		// delete
-		session.delete(user);
-		
-		UserDetails user5 = (UserDetails) session.get(UserDetails.class, 5);
-		user5.setUserName("Updated User");
-		// update
-		session.update(user5);
+		// Persistent object - nuolatinis
+		session.save(user);
 				
 		session.getTransaction().commit();
 		session.close();
+		
+		// Detached object - the ojbect that is no longer persistent
+		user.setUserName("Updated username after session close");
 			
-
+		session = sessionFactory.openSession();
+		session.beginTransaction();
+		
+		// Persistent object again
+		session.update(user);
+		
+		session.getTransaction().commit();
+		session.close();
 
 	}
 
